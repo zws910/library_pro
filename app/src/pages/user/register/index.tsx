@@ -75,23 +75,31 @@ const Register: FC<RegisterProps> = ({ submitting, dispatch, userAndregister }) 
       });
     }
   }, [userAndregister]);
+  // useEffect(() => {
+  //   if (!userAndregister) {
+  //     return;
+  //   }
+  //   if (userAndregister.mobileValid === 'ok') {
+  //     message.success('验证成功！');
+  //   }
+  // }, [userAndregister]);
   useEffect(
     () => () => {
       clearInterval(interval);
     },
     [],
   );
-  const onGetCaptcha = () => {
-    let counts = 59;
-    setCount(counts);
-    interval = window.setInterval(() => {
-      counts -= 1;
-      setCount(counts);
-      if (counts === 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
-  };
+  // const onGetCaptcha = () => {
+  //   let counts = 59;
+  //   setCount(counts);
+  //   interval = window.setInterval(() => {
+  //     counts -= 1;
+  //     setCount(counts);
+  //     if (counts === 0) {
+  //       clearInterval(interval);
+  //     }
+  //   }, 1000);
+  // };
   const getPasswordStatus = () => {
     const value = form.getFieldValue('password');
     if (value && value.length > 9) {
@@ -138,6 +146,29 @@ const Register: FC<RegisterProps> = ({ submitting, dispatch, userAndregister }) 
     }
     return promise.resolve();
   };
+  const checkMobileCount = (_: any, value: string, callback: any) => {
+    const promise = Promise;
+    const reg = /^\d{11}$/;
+    if (value.length === 11 && reg.test(value)) {
+      // 请求后端校验手机号是否存在
+      dispatch({
+        type: 'userAndregister/checkMobile',
+        payload: {
+          value,
+        },
+        callback: (res: any) => {
+          if (res.count === 1) {
+            console.log(222);
+            callback(formatMessage({ id: 'userandregister.phone-number.exists' }));
+          }
+          callback();
+        },
+      });
+    } else {
+      return promise.reject(formatMessage({ id: 'userandregister.phone-number.wrong-format' }));
+    }
+  };
+
   const changePrefix = (value: string) => {
     setPrefix(value);
   };
@@ -255,8 +286,7 @@ const Register: FC<RegisterProps> = ({ submitting, dispatch, userAndregister }) 
                 message: formatMessage({ id: 'userandregister.phone-number.required' }),
               },
               {
-                pattern: /^\d{11}$/,
-                message: formatMessage({ id: 'userandregister.phone-number.wrong-format' }),
+                validator: checkMobileCount,
               },
             ]}
           >
@@ -266,7 +296,9 @@ const Register: FC<RegisterProps> = ({ submitting, dispatch, userAndregister }) 
             />
           </FormItem>
         </InputGroup>
-        <Row gutter={8}>
+
+        {/* 获取验证码模块 暂时不用 */}
+        {/* <Row gutter={8}>
           <Col span={16}>
             <FormItem
               name="captcha"
@@ -295,7 +327,8 @@ const Register: FC<RegisterProps> = ({ submitting, dispatch, userAndregister }) 
                 : formatMessage({ id: 'userandregister.register.get-verification-code' })}
             </Button>
           </Col>
-        </Row>
+        </Row> */}
+
         <FormItem>
           <Button
             size="large"

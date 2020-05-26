@@ -7,3 +7,16 @@ export async function fakeRegister(params: UserRegisterParams) {
     data: params,
   });
 }
+
+export async function checkMobileCount(param: any) {
+  return request('/api/mobiles/count/', {
+    method: 'GET',
+    params: { mobile: param.value },
+  })
+    .then((response) => {
+      return response;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
