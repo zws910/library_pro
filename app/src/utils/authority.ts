@@ -30,3 +30,9 @@ export function setAuthority(authority: string | string[]): void {
   // auto reload
   reloadAuthorized();
 }
+
+// 存储jwt-token
+export function setToken(token: string): void {
+  localStorage.setItem('jwt-token', token);
+  reloadAuthorized();
+}

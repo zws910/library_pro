@@ -1,6 +1,7 @@
+import { setToken } from '@/utils/authority';
 import { Effect, history, Reducer } from 'umi';
 import { message } from 'antd';
-import { fakeAccountLogin, getFakeCaptcha, accountLogin } from './service';
+import { getFakeCaptcha, accountLogin } from './service';
 import { getPageQuery, setAuthority } from './utils/utils';
 
 export interface StateType {
@@ -66,9 +67,8 @@ const Model: ModelType = {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      console.log(payload);
-
       setAuthority(payload.currentAuthority);
+      setToken(payload.token);
       return {
         ...state,
         status: payload.status,

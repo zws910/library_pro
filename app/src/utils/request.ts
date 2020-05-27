@@ -48,9 +48,14 @@ const errorHandler = (error: { response: Response }): Response => {
 /**
  * 配置request请求时的默认参数
  */
+const token = localStorage.getItem('jwt-token');
+let jwtToken = 'JWT ' + token
 const request = extend({
   errorHandler, // 默认错误处理
   credentials: 'include', // 默认请求是否带上cookie
+  headers: {
+    Authorization: jwtToken,
+  },
 });
 
 export default request;
