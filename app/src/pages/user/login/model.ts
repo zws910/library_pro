@@ -1,6 +1,6 @@
 import { Effect, history, Reducer } from 'umi';
 import { message } from 'antd';
-import { fakeAccountLogin, getFakeCaptcha } from './service';
+import { fakeAccountLogin, getFakeCaptcha, accountLogin } from './service';
 import { getPageQuery, setAuthority } from './utils/utils';
 
 export interface StateType {
@@ -30,30 +30,32 @@ const Model: ModelType = {
 
   effects: {
     *login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
+      const response = yield call(accountLogin, payload);
       yield put({
         type: 'changeLoginStatus',
         payload: response,
       });
       // Login successfully
-      if (response.status === 'ok') {
-        message.success('登录成功！');
-        const urlParams = new URL(window.location.href);
-        const params = getPageQuery();
-        let { redirect } = params as { redirect: string };
-        if (redirect) {
-          const redirectUrlParams = new URL(redirect);
-          if (redirectUrlParams.origin === urlParams.origin) {
-            redirect = redirect.substr(urlParams.origin.length);
-            if (redirect.match(/^\/.*#/)) {
-              redirect = redirect.substr(redirect.indexOf('#') + 1);
+      if (response) {
+        if (response.status === 'ok') {
+          message.success('登录成功！');
+          const urlParams = new URL(window.location.href);
+          const params = getPageQuery();
+          let { redirect } = params as { redirect: string };
+          if (redirect) {
+            const redirectUrlParams = new URL(redirect);
+            if (redirectUrlParams.origin === urlParams.origin) {
+              redirect = redirect.substr(urlParams.origin.length);
+              if (redirect.match(/^\/.*#/)) {
+                redirect = redirect.substr(redirect.indexOf('#') + 1);
+              }
+            } else {
+              window.location.href = redirect;
+              return;
             }
-          } else {
-            window.location.href = redirect;
-            return;
           }
+          history.replace(redirect || '/');
         }
-        history.replace(redirect || '/');
       }
     },
 
@@ -64,6 +66,8 @@ const Model: ModelType = {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
+      console.log(payload);
+
       setAuthority(payload.currentAuthority);
       return {
         ...state,
